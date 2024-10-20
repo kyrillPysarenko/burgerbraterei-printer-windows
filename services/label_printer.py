@@ -24,11 +24,11 @@ def create_and_print_label(product_name, event_name, barcode_data, product_date,
     draw = ImageDraw.Draw(img)
 
     # Load fonts
-    title_font = ImageFont.truetype("arial.ttf", 28)
-    font = ImageFont.truetype("arial.ttf", 24)
+    title_font = ImageFont.truetype("arial.ttf", 40)
+    font = ImageFont.truetype("arial.ttf", 34)
     small_font = ImageFont.truetype("arial.ttf", 18)
-    barcode_font = ImageFont.truetype("arial.ttf", 12)
-    amount_font = ImageFont.truetype("arial.ttf", 24)
+    #barcode_font = ImageFont.truetype("arial.ttf", 12)
+    amount_font = ImageFont.truetype("arial.ttf", 28)
 
     # Function to draw wrapped text
     def draw_wrapped_text(text, position, font, max_width):
@@ -47,20 +47,20 @@ def create_and_print_label(product_name, event_name, barcode_data, product_date,
 
     # Draw information
     y_position = 10
-    y_position = draw_wrapped_text(f"Produkt: {product_name}", (10, y_position), title_font, width - 180)
+    y_position = draw_wrapped_text(f"{product_name}", (10, y_position), title_font, width - 180)
     y_position += 15  # Add some extra spacing after the product name
 
     if event_name:
         y_position = draw_wrapped_text(f"Event: {event_name}", (10, y_position), font, width - 20)
         y_position += 15
 
-    y_position = draw_wrapped_text(f"Produktdatum: {product_date}", (10, y_position), font, width - 20)
+    y_position = draw_wrapped_text(f"{product_date}", (10, y_position), font, width - 20)
     y_position += 15
-    y_position = draw_wrapped_text(f"Lager: {storage_name}", (10, y_position), font, width - 20)
+    y_position = draw_wrapped_text(f"{storage_name}", (10, y_position), font, width - 20)
     y_position += 15
-    y_position = draw_wrapped_text(f"Regal: {storage_shelf}", (10, y_position), font, width - 20)
+    y_position = draw_wrapped_text(f"{storage_shelf}", (10, y_position), font, width - 20)
     y_position += 15
-    y_position = draw_wrapped_text(f"Etage: {storage_level}", (10, y_position), font, width - 20)
+    y_position = draw_wrapped_text(f"{storage_level}", (10, y_position), font, width - 20)
     y_position += 15
 
     y_position = draw_wrapped_text("Hinweis:", (10, y_position), font, width - 20)
@@ -105,9 +105,6 @@ def create_and_print_label(product_name, event_name, barcode_data, product_date,
 
         barcode_position = (10, height - barcode_height - 40)
         img.paste(resized_barcode, barcode_position)
-
-        draw.text((10, height - 30), barcode_data, font=barcode_font, fill="black")
-
     # Save the image
     img.save("label.png")
 
@@ -115,4 +112,4 @@ def create_and_print_label(product_name, event_name, barcode_data, product_date,
     for _ in range(label_amount):
         print("Printing label...", _)
         print("amount on label", amount)
-        print_image("label.png")
+        print_image("label1.png")
