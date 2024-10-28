@@ -7,6 +7,33 @@ from io import BytesIO
 import qrcode
 from .print_service import print_image
 import textwrap
+import os
+
+
+def get_font(size, bold=False):
+    """
+    Load the specified font from the parent directory's fonts folder.
+    """
+    try:
+        font_file = "Roboto-Bold.ttf" if bold else "Roboto-Regular.ttf"
+        # Set the directory to the parent folder of the current file
+        parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        fonts_dir = os.path.join(parent_dir, 'fonts')
+        font_path = os.path.join(fonts_dir, font_file)
+
+        #print(f"Loading font from {font_path}")
+        # Attempt to load the font
+        font = ImageFont.truetype(font_path, size)
+        #print(f"Successfully loaded font from {font_path}")
+        return font
+    except Exception as e:
+        print(f"Error loading font from {font_path}: {e}")
+
+        # Last resort: Use default PIL font and scale it
+        default_font = ImageFont.load_default()
+        scale_factor = size / 10
+        return default_font.font_variant(size=int(scale_factor))
+
 
 def create_and_print_label(product_name, event_name, barcode_data, product_date,
                            storage_name, storage_shelf, storage_level, note, handler,
@@ -23,27 +50,40 @@ def create_and_print_label(product_name, event_name, barcode_data, product_date,
     img = Image.new('RGB', (width, height), color='white')
     draw = ImageDraw.Draw(img)
 
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    fonts_dir = os.path.join(current_dir, 'fonts')
+
     # Load fonts
-    title_font = ImageFont.truetype("arial.ttf", 40)
-    font = ImageFont.truetype("arial.ttf", 34)
-    small_font = ImageFont.truetype("arial.ttf", 18)
-    #barcode_font = ImageFont.truetype("arial.ttf", 12)
-    amount_font = ImageFont.truetype("arial.ttf", 28)
+    try:
+        title_font = get_font(40, bold=True)
+        font = get_font(34)
+        small_font = get_font(18)
+        amount_font = get_font(28)
+    except Exception as e:
+        print(f"Error loading fonts: {e}")
+        # If all else fails, use emergency large default font
+        from PIL import ImageFont
+        base_font = ImageFont.load_default()
+        title_font = base_font.font_variant(size=40)  # Will make it roughly 40px
+        font = base_font.font_variant(size=3)  # Will make it roughly 30px
+        small_font = base_font.font_variant(size=2)  # Will make it roughly 20px
+        amount_font = base_font.font_variant(size=3)
 
     # Function to draw wrapped text
-    def draw_wrapped_text(text, position, font, max_width):
+    def draw_wrapped_text(text, position, font, max_width, line_spacing=5):
         x, y = position
-        for line in textwrap.wrap(text, width=int(max_width / font.getlength("x"))):
+        avg_char_width = font.getlength("x") if font.getlength("x") > 0 else 10  # Fallback to 10 if getlength fails
+        for line in textwrap.wrap(text, width=int(max_width / avg_char_width)):
             bbox = font.getbbox(line)
             draw.text((x, y), line, font=font, fill="black")
-            y += bbox[3] - bbox[1]
+            y += bbox[3] - bbox[1] + line_spacing  # Add line_spacing to increase line spacing
         return y  # Return the new y position
 
     # Draw amount in top right corner if provided
     if amount is not None and unit is not None:
         amount_text = f"{amount} {unit}"
         amount_width = draw.textlength(amount_text, font=amount_font)
-        draw.text((width - amount_width - 100, 10), amount_text, font=amount_font, fill="black")
+        draw.text((width - amount_width - 50, 10), amount_text, font=amount_font, fill="black")
 
     # Draw information
     y_position = 10
@@ -103,7 +143,7 @@ def create_and_print_label(product_name, event_name, barcode_data, product_date,
 
         resized_barcode = barcode_image.resize((barcode_width, barcode_height), Image.Resampling.LANCZOS)
 
-        barcode_position = (10, height - barcode_height - 40)
+        barcode_position = (10, height - barcode_height - 10)
         img.paste(resized_barcode, barcode_position)
     # Save the image
     img.save("label.png")
