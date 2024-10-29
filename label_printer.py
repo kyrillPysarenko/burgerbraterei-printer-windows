@@ -66,7 +66,7 @@ def create_and_print_label(product_name, event_name, barcode_data, product_date,
     draw_text(f"Bearbeiter: {handler}", (10, y_position))
 
     # Speichere das Bild
-    img.save("label1.png")
+    img.save("label.png")
 
     # Drucke das Bild
-    print_image("label1.png")
+    print_image("label.png")

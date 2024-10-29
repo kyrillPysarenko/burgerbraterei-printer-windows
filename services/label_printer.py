@@ -152,4 +152,4 @@ def create_and_print_label(product_name, event_name, barcode_data, product_date,
     for _ in range(label_amount):
         print("Printing label...", _)
         print("amount on label", amount)
-        print_image("label1.png")
+        print_image("label.png")
