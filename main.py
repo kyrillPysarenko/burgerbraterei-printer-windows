@@ -10,8 +10,10 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",
         "http://localhost:3001",
+        "http://localhost:8000",
         "https://burgerbraterei-tasks.vercel.app",
-        "https://many-views-rescue.loca.lt",
+        "https://burgerbraterei-tasks-backend.vercel.app"
+        "https://many-views-rescue.loca.lt"
     ],  # Frontend URL
     allow_credentials=True,
     allow_methods=["*"],  # Allow all HTTP methods (GET, POST, etc.)
